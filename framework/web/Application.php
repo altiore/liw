@@ -16,10 +16,31 @@ class Application
      *
      * @param array $config
      */
-    public function __construct(array $config)
+    public function __construct(array $config = null)
+    {
+        if ($config !== null) {
+            $this->checkConfig($config);
+            $this->config = $config;
+        }
+    }
+
+    /**
+     * @param array $config
+     *
+     * @throws \Exception
+     */
+    public function configure(array $config)
     {
         $this->checkConfig($config);
         $this->config = $config;
+    }
+
+    /**
+     * @return bool
+     */
+    public function checkConfigure()
+    {
+        return !empty($this->config);
     }
 
     /**
@@ -32,6 +53,19 @@ class Application
         } else {
             return true;
         }
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    public function notFound()
+    {
+        throw new \InvalidArgumentException();
+    }
+
+    public function sayHello()
+    {
+        echo 'Hello World!';
     }
 
     /**

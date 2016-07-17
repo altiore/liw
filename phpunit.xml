@@ -15,8 +15,4 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
-
-    <php>
-        <server name="APP_DIR" value="app/" />
-    </php>
 </phpunit>

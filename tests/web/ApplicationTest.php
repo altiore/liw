@@ -3,24 +3,58 @@
  * Created by PhpStorm.
  * User: r
  * Date: 17.07.16
- * Time: 13:27
+ * Time: 14:44
  */
 
 namespace tests\web;
 
-use liw\web\Application;
 
-/**
- * Class ApplicationTest
- *
- * @package tests\web
- */
-class ApplicationTest extends \PHPUnit_Framework_TestCase
+use liw\web\Application;
+use PHPUnit\Framework\TestCase;
+
+class ApplicationTest extends TestCase
 {
-    public function testApplicationConfig()
+    /** @var  Application */
+    protected $app;
+
+    public function setUp()
     {
-        $this->assertFalse((new Application([]))->run());
-        $this->assertTrue((new Application(['someVariable' => 'someData']))->run());
-        $this->assertEquals(true, (new Application(['2']))->run());
+        parent::setUp();
+        $this->app = new Application();
+    }
+
+    public function testRunApplication()
+    {
+        $app = new Application(['param' => 'value']);
+        $this->assertTrue($app->run());
+        $wrongApp = new Application([]);
+        $this->assertFalse($wrongApp->run());
+
+        $this->assertEquals(true, $app->run());
+    }
+
+    public function testConfigureApplication()
+    {
+        $app = new Application();
+        $app->configure(['param' => 'value']);
+        $this->assertTrue($app->checkConfigure());
+    }
+
+    /**
+     * Testing exception
+     */
+   public function testException()
+   {
+       $this->expectException(\InvalidArgumentException::class);
+       $this->app->notFound();
+   }
+
+    /**
+     * Testing output
+     */
+    public function testString()
+    {
+        $this->expectOutputString('Hello World!');
+        $this->app->sayHello();
     }
 }
