@@ -9,74 +9,79 @@ namespace liw\web;
  */
 class Application
 {
-    private $config = [];
+    public $name = 'liw';
+
+    /**
+     * @var \stdClass
+     */
+    private $_components;
+    private $_classes;
 
     /**
      * Application constructor.
      *
      * @param array $config
-     */
-    public function __construct(array $config = null)
-    {
-        if ($config !== null) {
-            $this->checkConfig($config);
-            $this->config = $config;
-        }
-    }
-
-    /**
-     * @param array $config
      *
-     * @throws \Exception
+     * @return void
      */
-    public function configure(array $config)
+    public function __construct(array $config = [])
     {
-        $this->checkConfig($config);
-        $this->config = $config;
+        $this->_components = new \stdClass();
+        $this->setCoreClasses();
     }
 
-    /**
-     * @return bool
-     */
-    public function checkConfigure()
+    public function __get($className)
     {
-        return !empty($this->config);
-    }
+        if (isset($this->_components->{$className})) {
+            return $this->_components->{$className};
+        }
 
-    /**
-     * @return bool
-     */
-    public function run()
-    {
-        if (empty($this->config)) {
-            return false;
+        if (
+            !class_exists($className)
+            && !class_exists(($className = $this->name . '\\' . $className))
+        ) {
+            throw new \Exception("Component $className not found!");
+        }
+
+        if (method_exists($className, '__construct') !== false) {
+            $refMethod = new \ReflectionMethod($className, '__construct');
+            $params = $refMethod->getParameters();
+
+            $re_args = [];
+
+            foreach ($params as $key => $param) {
+                if ($param->isDefaultValueAvailable()) {
+                    $re_args[$param->name] = $param->getDefaultValue();
+                } else {
+                    $class = $param->getClass();
+                    if ($class !== null) {
+                        $re_args[$param->name] = $this->{$class->name};
+                    } else {
+                        throw new \Exception("Not found {$class->name} in container");
+                    }
+                }
+            }
+
+            $refClass = new \ReflectionClass($className);
+            $class_instance = $refClass->newInstanceArgs((array)$re_args);
         } else {
-            return true;
+            $class_instance = new $className();
         }
+
+        return $this->_components->{$className} = $class_instance;
     }
 
-    /**
-     * @throws \InvalidArgumentException
-     */
-    public function notFound()
+    public function getCoreClasses()
     {
-        throw new \InvalidArgumentException();
+        return [
+            'Request'    => \Symfony\Component\HttpFoundation\Request::class,
+            'Response'   => \Symfony\Component\HttpFoundation\Response::class,
+            'Controller' => \liw\Controller::class,
+        ];
     }
 
-    public function sayHello()
+    protected function setCoreClasses($components = [])
     {
-        echo 'Hello World!';
-    }
-
-    /**
-     * @param $config
-     *
-     * @throws \Exception
-     */
-    private function checkConfig($config)
-    {
-        if (!is_array($config)) {
-            throw new \Exception("Config must be an array!");
-        }
+        return $this->_classes = (object)array_merge($this->getCoreClasses(), $components);
     }
 }

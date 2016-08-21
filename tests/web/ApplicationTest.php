@@ -1,17 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: r
- * Date: 17.07.16
- * Time: 14:44
- */
-
 namespace tests\web;
 
-
 use liw\web\Application;
+use liw\Request;
+use liw\Response;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class ApplicationTest
+ *
+ * @package tests\web
+ */
 class ApplicationTest extends TestCase
 {
     /** @var  Application */
@@ -23,38 +22,80 @@ class ApplicationTest extends TestCase
         $this->app = new Application();
     }
 
-    public function testRunApplication()
-    {
-        $app = new Application(['param' => 'value']);
-        $this->assertTrue($app->run());
-        $wrongApp = new Application([]);
-        $this->assertFalse($wrongApp->run());
+//    public function testRunApplication()
+//    {
+//        $app = new Application(['param' => 'value']);
+//        $this->assertTrue($app->run());
+//        $wrongApp = new Application([]);
+//        $this->assertFalse($wrongApp->run());
+//
+//        $this->assertEquals(true, $app->run());
+//    }
+//
+//    public function testConfigureApplication()
+//    {
+//        $app = new Application();
+//        $app->configure(['param' => 'value']);
+//        $this->assertTrue($app->checkConfigure());
+//    }
+//
+//    /**
+//     * Testing exception
+//     */
+//   public function testException()
+//   {
+//       $this->expectException(\InvalidArgumentException::class);
+//       $this->app->notFound();
+//   }
+//
+//    /**
+//     * Testing output
+//     */
+//    public function testString()
+//    {
+//        $this->expectOutputString('Hello World!');
+//        $this->app->sayHello();
+//    }
 
-        $this->assertEquals(true, $app->run());
-    }
-
-    public function testConfigureApplication()
+    /**
+     * @dataProvider componentsProvider
+     */
+    public function testGetCoreComponent($componentName, $className = null)
     {
-        $app = new Application();
-        $app->configure(['param' => 'value']);
-        $this->assertTrue($app->checkConfigure());
+        if ($className === null) {
+            $className = $componentName;
+        }
+        $this->assertTrue($this->app->{$componentName} instanceof $className);
     }
 
     /**
-     * Testing exception
+     * @return array
      */
-   public function testException()
-   {
-       $this->expectException(\InvalidArgumentException::class);
-       $this->app->notFound();
-   }
+    public function componentsProvider()
+    {
+        return [
+            [Request::class],
+            ['Request', Request::class],
+        ];
+    }
 
     /**
-     * Testing output
+     * @dataProvider notExistingComponentsProvider
      */
-    public function testString()
+    public function testTryToGetNotExistingComponent($componentName)
     {
-        $this->expectOutputString('Hello World!');
-        $this->app->sayHello();
+        $this->expectException(\Exception::class);
+        $this->app->{$componentName};
+    }
+
+    /**
+     * @return array
+     */
+    public function notExistingComponentsProvider()
+    {
+        return [
+            ['reqquest'],
+            ['ressponse'],
+        ];
     }
 }
