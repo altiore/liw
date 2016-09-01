@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * Created by PhpStorm.
  * User: r
@@ -11,5 +11,9 @@ namespace liw\validators;
 
 trait Required
 {
-
+    public function required() : Validator
+    {
+        $this->value;
+        return $this;
+    }
 }
