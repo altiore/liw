@@ -15,6 +15,9 @@ use PHPUnit\Framework\TestCase;
  */
 class ControllerTest extends TestCase
 {
+    /**
+     * Test
+     */
     public function testObserverPattern()
     {
         $controller = new Controller();
