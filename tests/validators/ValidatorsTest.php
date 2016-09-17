@@ -45,7 +45,6 @@ class ValidatorsTest extends TestCase
         $this->validator->run($value)->boolean($strict);
         $this->assertEquals($isValid, $this->validator->isValid);
     }
-
     public function booleanData()
     {
         return [

@@ -27,7 +27,7 @@ class ActiveRecord
 
     public function rules()
     {
-        $this->validate($this->name)->required()->integer()->string()->match();
+        $this->validate('name')->required()->integer()->string()->match();
         $this->validate('field')->required()->trim()->filter()->match();
     }
 }
